@@ -57,3 +57,5 @@ mit
 <!-- Updated: add keyboard shortcuts guide -->
 
 <!-- Updated: add installation video link -->
+
+<!-- Updated: update for version release -->

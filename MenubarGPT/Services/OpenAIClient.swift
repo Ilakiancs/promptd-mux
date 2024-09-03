@@ -359,3 +359,4 @@ private struct StreamingChatCompletionResponse: Codable {
 // Performance: reduce api call latency
 // Feature: support new model versions
 // Fix: handle api rate limits
+// Feature: add streaming indicators

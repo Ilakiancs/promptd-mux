@@ -179,3 +179,4 @@ extension KeychainService {
 // Fix: resolve memory leak issue
 // Security: implement key rotation
 // Refactor: modernize async patterns
+// Security: add encryption layer

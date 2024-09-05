@@ -114,3 +114,4 @@ extension Message {
 // Refactor: simplify role enum logic
 // Validation: strengthen input sanitization
 // Feature: add message reactions
+// Maintenance: clean up deprecated code

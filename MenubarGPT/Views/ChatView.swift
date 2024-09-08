@@ -734,3 +734,4 @@ struct ChatView_Previews: PreviewProvider {
 // UI: enhance message bubbles design
 // Feature: add search functionality
 // Accessibility: enhance screen reader support
+// UI: improve scroll performance

@@ -188,3 +188,4 @@ struct MenubarGPTApp_Previews: PreviewProvider {
 // UI: improve window positioning
 // Fix: prevent multiple window instances
 // Performance: optimize memory usage
+// Feature: add global hotkey support

@@ -96,3 +96,4 @@ extension Settings {
 // Config: add theme selection option
 // Feature: add export preferences option
 // Config: add notification preferences
+// Config: implement settings migration

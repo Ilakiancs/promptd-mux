@@ -496,3 +496,4 @@ struct SettingsView_Previews: PreviewProvider {
 // Accessibility: add keyboard shortcuts
 // UI: redesign settings tabs
 // UI: improve validation feedback
+// UI: add dark mode toggle

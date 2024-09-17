@@ -358,3 +358,4 @@ private struct StreamingChatCompletionResponse: Codable {
 // Feature: add retry mechanism
 // Performance: reduce api call latency
 // Feature: support new model versions
+// Fix: handle api rate limits

@@ -13,3 +13,4 @@ else
     exit 1
 fi
 # Build: add code signing options
+# Build: add automated testing

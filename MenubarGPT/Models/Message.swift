@@ -113,3 +113,4 @@ extension Message {
 // Feature: add message timestamps
 // Refactor: simplify role enum logic
 // Validation: strengthen input sanitization
+// Feature: add message reactions

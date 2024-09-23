@@ -55,3 +55,5 @@ mit
 <!-- Updated: update usage examples -->
 
 <!-- Updated: add keyboard shortcuts guide -->
+
+<!-- Updated: add installation video link -->

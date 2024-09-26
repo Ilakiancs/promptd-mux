@@ -495,3 +495,4 @@ struct SettingsView_Previews: PreviewProvider {
 // UI: improve api key input field
 // Accessibility: add keyboard shortcuts
 // UI: redesign settings tabs
+// UI: improve validation feedback

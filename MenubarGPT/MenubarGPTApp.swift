@@ -186,3 +186,4 @@ struct MenubarGPTApp_Previews: PreviewProvider {
 #endif
 // Refactor: extract menu creation logic
 // UI: improve window positioning
+// Fix: prevent multiple window instances

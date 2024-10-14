@@ -53,3 +53,5 @@ click menubar icon for 420x520 window
 mit
 
 <!-- Updated: update usage examples -->
+
+<!-- Updated: add keyboard shortcuts guide -->

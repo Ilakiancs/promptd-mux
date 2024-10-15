@@ -731,3 +731,4 @@ struct ChatView_Previews: PreviewProvider {
 }
 #endif// Feature: add message copy functionality
 // Performance: optimize message rendering
+// UI: enhance message bubbles design

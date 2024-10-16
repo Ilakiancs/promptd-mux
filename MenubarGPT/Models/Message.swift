@@ -111,3 +111,4 @@ extension Message {
 }
 #endif
 // Feature: add message timestamps
+// Refactor: simplify role enum logic

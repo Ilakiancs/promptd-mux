@@ -12,3 +12,4 @@ else
     echo "Build failed!"
     exit 1
 fi
+# Build: add code signing options

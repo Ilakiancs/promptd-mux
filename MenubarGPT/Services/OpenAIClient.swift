@@ -355,3 +355,4 @@ private struct StreamingChatCompletionResponse: Codable {
     }
 }
 // Fix: handle network timeout gracefully
+// Feature: add retry mechanism

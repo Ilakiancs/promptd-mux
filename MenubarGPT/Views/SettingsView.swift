@@ -493,3 +493,4 @@ struct SettingsView_Previews: PreviewProvider {
 }
 #endif// UI: update settings layout spacing
 // UI: improve api key input field
+// Accessibility: add keyboard shortcuts

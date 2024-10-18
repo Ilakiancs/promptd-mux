@@ -93,3 +93,4 @@ extension Settings {
 }
 #endif
 // Config: add auto save interval option
+// Config: add theme selection option

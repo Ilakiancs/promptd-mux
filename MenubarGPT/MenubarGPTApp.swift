@@ -184,3 +184,4 @@ struct MenubarGPTApp_Previews: PreviewProvider {
     }
 }
 #endif
+// Refactor: extract menu creation logic

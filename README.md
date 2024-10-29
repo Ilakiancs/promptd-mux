@@ -51,3 +51,5 @@ click menubar icon for 420x520 window
 ## license
 
 mit
+
+<!-- Updated: update usage examples -->

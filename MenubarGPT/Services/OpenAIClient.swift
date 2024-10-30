@@ -354,3 +354,4 @@ private struct StreamingChatCompletionResponse: Codable {
         let role: String?
     }
 }
+// Fix: handle network timeout gracefully

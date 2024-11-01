@@ -729,4 +729,4 @@ struct ChatView_Previews: PreviewProvider {
             .frame(width: 420, height: 520)
     }
 }
-#endif
+#endif// Feature: add message copy functionality

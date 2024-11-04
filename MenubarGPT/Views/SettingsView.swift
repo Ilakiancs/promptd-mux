@@ -491,4 +491,4 @@ struct SettingsView_Previews: PreviewProvider {
             .frame(width: 500, height: 400)
     }
 }
-#endif
+#endif// UI: update settings layout spacing

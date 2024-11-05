@@ -6,7 +6,7 @@ struct MenubarGPTApp: App {
     @StateObject private var historyStore = HistoryStore.shared
     @StateObject private var openAIClient = OpenAIClient()
     @State private var settings = Settings.load()
-    
+
     var body: some Scene {
         MenuBarExtra("promptd-mux", systemImage: "sparkles") {
             MenubarGPTView()
@@ -19,7 +19,7 @@ struct MenubarGPTApp: App {
         }
         .menuBarExtraStyle(.window)
         .windowResizability(.contentSize)
-        
+
         // Settings window (hidden by default, can be shown via menu)
         Window("Settings", id: "settings") {
             SettingsView()
@@ -29,7 +29,7 @@ struct MenubarGPTApp: App {
         .windowResizability(.contentSize)
         .defaultPosition(.center)
     }
-    
+
     init() {
         // Setup will be done in onAppear
     }
@@ -41,25 +41,25 @@ struct MenubarGPTView: View {
     @EnvironmentObject private var openAIClient: OpenAIClient
     @Environment(\.settings) private var settings
     @Environment(\.openURL) private var openURL
-    
+
     @State private var showingSettings = false
     @State private var showingError = false
     @State private var errorMessage = ""
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Header with title and buttons
             headerView
-            
+
             Divider()
-            
+
             // Main chat interface
             ChatView()
                 .environmentObject(historyStore)
                 .environmentObject(openAIClient)
-                .frame(width: 420, height: 480) // Reduced height to account for header
+                .frame(width: Constants.windowWidth, height: Constants.chatHeight)
         }
-        .frame(width: 420, height: 520)
+        .frame(width: Constants.windowWidth, height: Constants.windowHeight)
         .background(Color(NSColor.windowBackgroundColor))
         .alert("Error", isPresented: $showingError) {
             Button("OK") { }
@@ -76,7 +76,7 @@ struct MenubarGPTView: View {
             showingSettings = true
         }
     }
-    
+
     private var headerView: some View {
         HStack(spacing: 12) {
             // App icon and title
@@ -84,15 +84,15 @@ struct MenubarGPTView: View {
                 Image(systemName: "sparkles")
                     .font(.title3)
                     .foregroundStyle(.blue.gradient)
-                
+
                 Text("promptd-mux")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
             }
-            
+
             Spacer()
-            
+
             // Action buttons
             HStack(spacing: 8) {
                 // Open web ChatGPT button
@@ -103,7 +103,7 @@ struct MenubarGPTView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Open ChatGPT in Browser")
-                
+
                 // Settings button
                 Button(action: { showingSettings = true }) {
                     Image(systemName: "gear")
@@ -112,7 +112,7 @@ struct MenubarGPTView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Settings")
-                
+
                 // Quit button
                 Button(action: quitApp) {
                     Image(systemName: "xmark.circle.fill")
@@ -132,12 +132,12 @@ struct MenubarGPTView: View {
                 .environment(\.settings, settings)
         }
     }
-    
+
     private func openWebChatGPT() {
         guard let url = URL(string: "https://chat.openai.com") else { return }
         openURL(url)
     }
-    
+
     private func quitApp() {
         NSApplication.shared.terminate(nil)
     }
@@ -160,6 +160,15 @@ extension EnvironmentValues {
 
 extension Notification.Name {
     static let settingsDidChange = Notification.Name("settingsDidChange")
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static let windowWidth: CGFloat = 420
+    static let windowHeight: CGFloat = 520
+    static let chatHeight: CGFloat = 480
+    static let headerHeight: CGFloat = 40
 }
 
 // MARK: - Preview

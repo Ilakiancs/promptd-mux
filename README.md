@@ -10,6 +10,12 @@ minimal macOS menubar client for OpenAI chat completions
 - 50 message session persistence
 - supports gpt-4o, gpt-4o-mini, o1-mini
 
+## requirements
+
+- macOS 13.0+ (Ventura)
+- Xcode 15.0+
+- OpenAI API key
+
 ## setup
 
 ```bash

@@ -7,7 +7,7 @@ struct Message: Identifiable, Codable, Equatable {
     var content: String
     let createdAt: Date
     let sessionId: String
-    
+
     init(
         id: UUID = UUID(),
         role: Role,
@@ -21,13 +21,13 @@ struct Message: Identifiable, Codable, Equatable {
         self.createdAt = createdAt
         self.sessionId = sessionId
     }
-    
+
     /// Message role in the conversation
     enum Role: String, Codable, CaseIterable {
         case user = "user"
         case assistant = "assistant"
         case system = "system"
-        
+
         var displayName: String {
             switch self {
             case .user:
@@ -38,6 +38,22 @@ struct Message: Identifiable, Codable, Equatable {
                 return "System"
             }
         }
+    }
+}
+
+// MARK: - Validation
+extension Message {
+    /// Validate message content
+    var isValid: Bool {
+        return !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+               content.count <= 32000 // OpenAI token limit approximation
+    }
+
+    /// Get content word count
+    var wordCount: Int {
+        return content.components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+            .count
     }
 }
 
@@ -60,13 +76,13 @@ extension Message {
         content: "Hello, how are you?",
         sessionId: "preview-session"
     )
-    
+
     static let previewAssistant = Message(
         role: .assistant,
         content: "I'm doing well, thank you! How can I help you today?",
         sessionId: "preview-session"
     )
-    
+
     static let previewMessages = [
         Message(role: .user, content: "What is SwiftUI?", sessionId: "preview-session"),
         Message(role: .assistant, content: "SwiftUI is Apple's modern framework for building user interfaces across all Apple platforms. It uses a declarative syntax that makes it easy to create complex UIs with less code.", sessionId: "preview-session"),
@@ -88,7 +104,7 @@ extension Message {
             }
         }
         ```
-        
+
         This creates a vertical stack with text and a button.
         """, sessionId: "preview-session")
     ]

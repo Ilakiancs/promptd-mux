@@ -2,7 +2,7 @@ import Foundation
 
 /// Client for communicating with OpenAI API
 final class OpenAIClient: ObservableObject {
-    
+
     /// Errors that can occur during API communication
     enum APIError: Error, LocalizedError {
         case noApiKey
@@ -14,7 +14,7 @@ final class OpenAIClient: ObservableObject {
         case networkError(Error)
         case decodingError(Error)
         case streamingError(String)
-        
+
         var errorDescription: String? {
             switch self {
             case .noApiKey:
@@ -41,7 +41,7 @@ final class OpenAIClient: ObservableObject {
                 return "Streaming error: \(message)"
             }
         }
-        
+
         var shouldRetry: Bool {
             switch self {
             case .rateLimited:
@@ -55,15 +55,15 @@ final class OpenAIClient: ObservableObject {
             }
         }
     }
-    
+
     private let baseURL = "https://api.openai.com/v1"
     private let session: URLSession
     private let keychain = KeychainService.shared
-    
+
     init(session: URLSession = .shared) {
         self.session = session
     }
-    
+
     /// Send a chat completion request
     func sendChatCompletion(
         messages: [Message],
@@ -71,15 +71,15 @@ final class OpenAIClient: ObservableObject {
         temperature: Double = 0.7,
         maxTokens: Int? = nil
     ) async throws -> String {
-        
+
         guard let apiKey = try keychain.getApiKey() else {
             throw APIError.noApiKey
         }
-        
+
         guard let url = URL(string: "\(baseURL)/chat/completions") else {
             throw APIError.invalidURL
         }
-        
+
         let requestBody = ChatCompletionRequest(
             model: model.rawValue,
             messages: messages.map { message in
@@ -88,26 +88,26 @@ final class OpenAIClient: ObservableObject {
             temperature: temperature,
             maxTokens: maxTokens
         )
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("promptd-mux/1.0", forHTTPHeaderField: "User-Agent")
-        
+
         do {
             request.httpBody = try JSONEncoder().encode(requestBody)
         } catch {
             throw APIError.decodingError(error)
         }
-        
+
         do {
             let (data, response) = try await session.data(for: request)
-            
+
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw APIError.invalidResponse
             }
-            
+
             // Handle HTTP error codes
             switch httpResponse.statusCode {
             case 200...299:
@@ -123,16 +123,16 @@ final class OpenAIClient: ObservableObject {
             default:
                 throw APIError.serverError(httpResponse.statusCode)
             }
-            
+
             let completionResponse = try JSONDecoder().decode(ChatCompletionResponse.self, from: data)
-            
+
             guard let choice = completionResponse.choices.first,
                   let content = choice.message.content else {
                 throw APIError.invalidResponse
             }
-            
+
             return content.trimmingCharacters(in: .whitespacesAndNewlines)
-            
+
         } catch let decodingError as DecodingError {
             throw APIError.decodingError(decodingError)
         } catch let error as APIError {
@@ -141,7 +141,7 @@ final class OpenAIClient: ObservableObject {
             throw APIError.networkError(error)
         }
     }
-    
+
     /// Send a streaming chat completion request
     func sendStreamingChatCompletion(
         messages: [Message],
@@ -150,15 +150,15 @@ final class OpenAIClient: ObservableObject {
         maxTokens: Int? = nil,
         onPartialContent: @escaping (String) -> Void
     ) async throws -> String {
-        
+
         guard let apiKey = try keychain.getApiKey() else {
             throw APIError.noApiKey
         }
-        
+
         guard let url = URL(string: "\(baseURL)/chat/completions") else {
             throw APIError.invalidURL
         }
-        
+
         let requestBody = StreamingChatCompletionRequest(
             model: model.rawValue,
             messages: messages.map { message in
@@ -168,26 +168,26 @@ final class OpenAIClient: ObservableObject {
             maxTokens: maxTokens,
             stream: true
         )
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("promptd-mux/1.0", forHTTPHeaderField: "User-Agent")
-        
+
         do {
             request.httpBody = try JSONEncoder().encode(requestBody)
         } catch {
             throw APIError.decodingError(error)
         }
-        
+
         do {
             let (bytes, response) = try await session.bytes(for: request)
-            
+
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw APIError.invalidResponse
             }
-            
+
             // Handle HTTP error codes
             switch httpResponse.statusCode {
             case 200...299:
@@ -202,24 +202,24 @@ final class OpenAIClient: ObservableObject {
             default:
                 throw APIError.serverError(httpResponse.statusCode)
             }
-            
+
             var fullContent = ""
-            
+
             for try await line in bytes.lines {
                 if line.hasPrefix("data: ") {
                     let jsonString = String(line.dropFirst(6))
-                    
+
                     if jsonString == "[DONE]" {
                         break
                     }
-                    
+
                     guard let data = jsonString.data(using: .utf8) else {
                         continue
                     }
-                    
+
                     do {
                         let streamResponse = try JSONDecoder().decode(StreamingChatCompletionResponse.self, from: data)
-                        
+
                         if let delta = streamResponse.choices.first?.delta.content {
                             fullContent += delta
                             onPartialContent(delta)
@@ -230,32 +230,32 @@ final class OpenAIClient: ObservableObject {
                     }
                 }
             }
-            
+
             return fullContent.trimmingCharacters(in: .whitespacesAndNewlines)
-            
+
         } catch let error as APIError {
             throw error
         } catch {
             throw APIError.networkError(error)
         }
     }
-    
+
     /// Test the API key by making a lightweight request
     func testApiKey(_ apiKey: String) async throws -> Bool {
         guard let url = URL(string: "\(baseURL)/models") else {
             throw APIError.invalidURL
         }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("promptd-mux/1.0", forHTTPHeaderField: "User-Agent")
         request.timeoutInterval = 10.0
-        
+
         do {
             let (_, response) = try await session.data(for: request)
-            
+
             if let httpResponse = response as? HTTPURLResponse {
                 switch httpResponse.statusCode {
                 case 200...299:
@@ -266,7 +266,7 @@ final class OpenAIClient: ObservableObject {
                     throw APIError.serverError(httpResponse.statusCode)
                 }
             }
-            
+
             return false
         } catch {
             if error is APIError {
@@ -284,7 +284,7 @@ private struct ChatCompletionRequest: Codable {
     let messages: [ChatMessage]
     let temperature: Double
     let maxTokens: Int?
-    
+
     enum CodingKeys: String, CodingKey {
         case model, messages, temperature
         case maxTokens = "max_tokens"
@@ -297,7 +297,7 @@ private struct StreamingChatCompletionRequest: Codable {
     let temperature: Double
     let maxTokens: Int?
     let stream: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case model, messages, temperature, stream
         case maxTokens = "max_tokens"
@@ -312,22 +312,22 @@ private struct ChatMessage: Codable {
 private struct ChatCompletionResponse: Codable {
     let choices: [Choice]
     let usage: Usage?
-    
+
     struct Choice: Codable {
         let message: ChatMessage
         let finishReason: String?
-        
+
         enum CodingKeys: String, CodingKey {
             case message
             case finishReason = "finish_reason"
         }
     }
-    
+
     struct Usage: Codable {
         let promptTokens: Int
         let completionTokens: Int
         let totalTokens: Int
-        
+
         enum CodingKeys: String, CodingKey {
             case promptTokens = "prompt_tokens"
             case completionTokens = "completion_tokens"
@@ -338,17 +338,17 @@ private struct ChatCompletionResponse: Codable {
 
 private struct StreamingChatCompletionResponse: Codable {
     let choices: [StreamingChoice]
-    
+
     struct StreamingChoice: Codable {
         let delta: StreamingDelta
         let finishReason: String?
-        
+
         enum CodingKeys: String, CodingKey {
             case delta
             case finishReason = "finish_reason"
         }
     }
-    
+
     struct StreamingDelta: Codable {
         let content: String?
         let role: String?

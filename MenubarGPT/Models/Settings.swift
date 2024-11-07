@@ -7,19 +7,22 @@ struct Settings: Codable {
     var enableGlobalHotkey: Bool
     var startAtLogin: Bool
     var windowOpacity: Double
-    
+    var requestTimeout: Double
+
     init(
         selectedModel: OpenAIModel = .gpt4oMini,
         hasApiKey: Bool = false,
         enableGlobalHotkey: Bool = true,
         startAtLogin: Bool = false,
-        windowOpacity: Double = 0.95
+        windowOpacity: Double = 0.95,
+        requestTimeout: Double = 30.0
     ) {
         self.selectedModel = selectedModel
         self.hasApiKey = hasApiKey
         self.enableGlobalHotkey = enableGlobalHotkey
         self.startAtLogin = startAtLogin
         self.windowOpacity = windowOpacity
+        self.requestTimeout = requestTimeout
     }
 }
 
@@ -28,9 +31,9 @@ enum OpenAIModel: String, Codable, CaseIterable, Identifiable {
     case gpt4o = "gpt-4o"
     case gpt4oMini = "gpt-4o-mini"
     case o1Mini = "o1-mini"
-    
+
     var id: String { rawValue }
-    
+
     var displayName: String {
         switch self {
         case .gpt4o:
@@ -41,7 +44,7 @@ enum OpenAIModel: String, Codable, CaseIterable, Identifiable {
             return "o1 Mini"
         }
     }
-    
+
     var description: String {
         switch self {
         case .gpt4o:
@@ -58,7 +61,7 @@ enum OpenAIModel: String, Codable, CaseIterable, Identifiable {
 extension Settings {
     private static let userDefaults = UserDefaults.standard
     private static let settingsKey = "promptd-mux.Settings"
-    
+
     /// Load settings from UserDefaults
     static func load() -> Settings {
         guard let data = userDefaults.data(forKey: settingsKey),
@@ -67,7 +70,7 @@ extension Settings {
         }
         return settings
     }
-    
+
     /// Save settings to UserDefaults
     func save() {
         if let data = try? JSONEncoder().encode(self) {
@@ -84,7 +87,8 @@ extension Settings {
         hasApiKey: true,
         enableGlobalHotkey: true,
         startAtLogin: false,
-        windowOpacity: 0.95
+        windowOpacity: 0.95,
+        requestTimeout: 30.0
     )
 }
 #endif

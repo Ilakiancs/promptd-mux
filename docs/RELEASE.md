@@ -223,3 +223,4 @@ hdiutil create -volname "MenubarGPT" \
 ---
 
 For questions about the release process, contact the maintainers or create an issue.
+

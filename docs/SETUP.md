@@ -190,3 +190,4 @@ Congratulations! You now have MenubarGPT set up and ready to use. Enjoy having C
 ---
 
 **Need more help?** Check out our [FAQ](FAQ.md) or [create an issue](https://github.com/menubargpt/menubargpt/issues/new).
+

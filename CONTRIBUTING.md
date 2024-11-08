@@ -281,3 +281,4 @@ If you have questions about contributing:
 - [Twitter](https://twitter.com/menubargpt)
 
 Thank you for contributing to MenubarGPT!
+

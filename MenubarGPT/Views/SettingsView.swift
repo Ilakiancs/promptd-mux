@@ -19,7 +19,15 @@ struct SettingsView: View {
     }
     
     init() {
-        _settings = State(initialValue: Settings.load())
+        let currentSettings = Settings.load()
+        _settings = State(initialValue: currentSettings)
+        
+        // Ensure hasApiKey is accurate on initialization
+        var updatedSettings = currentSettings
+        updatedSettings.hasApiKey = KeychainService.shared.hasApiKey()
+        _settings = State(initialValue: updatedSettings)
+        
+        print("DEBUG: SettingsView init - hasApiKey: \(updatedSettings.hasApiKey)")
     }
     
     var body: some View {
@@ -319,7 +327,16 @@ struct SettingsView: View {
     // MARK: - Actions
     
     private func loadCurrentApiKey() {
-        settings.hasApiKey = KeychainService.shared.hasApiKey()
+        let hasKey = KeychainService.shared.hasApiKey()
+        print("DEBUG: loadCurrentApiKey - Keychain has key: \(hasKey)")
+        print("DEBUG: loadCurrentApiKey - Settings before: \(settings.hasApiKey)")
+        
+        settings.hasApiKey = hasKey
+        
+        print("DEBUG: loadCurrentApiKey - Settings after: \(settings.hasApiKey)")
+        
+        // Save the updated settings
+        settings.save()
     }
     
     private func testAndSaveApiKey() {
@@ -416,6 +433,7 @@ struct SettingsView: View {
         do {
             try KeychainService.shared.saveApiKey(testKey)
             settings.hasApiKey = true
+            settings.save()
             print("DEBUG: Quick save successful! Key saved to keychain")
             
             // Try to retrieve it immediately
@@ -423,6 +441,9 @@ struct SettingsView: View {
                 print("DEBUG: Retrieved key: \(String(retrievedKey.prefix(15)))...")
                 print("DEBUG: Keys match: \(retrievedKey == testKey)")
             }
+            
+            // Force refresh the current state
+            loadCurrentApiKey()
             
         } catch {
             print("DEBUG: Quick save failed: \(error)")

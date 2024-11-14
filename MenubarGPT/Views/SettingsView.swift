@@ -158,12 +158,14 @@ struct SettingsView: View {
                     
                     HStack(spacing: 12) {
                         Button("Test & Save") {
+                            print("DEBUG: Test & Save button pressed")
                             testAndSaveApiKey()
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTestingApiKey)
                         
                         Button("Save Only") {
+                            print("DEBUG: Save Only button pressed")
                             saveApiKeyWithoutTest()
                         }
                         .buttonStyle(.bordered)
@@ -175,6 +177,12 @@ struct SettingsView: View {
                             apiKeyTestResult = nil
                         }
                         .buttonStyle(.bordered)
+                        
+                        Button("Debug Save") {
+                            forceDebugSave()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .foregroundColor(.orange)
                         
                         if isTestingApiKey {
                             ProgressView()
@@ -383,6 +391,27 @@ struct SettingsView: View {
             settings.hasApiKey = false
         } catch {
             print("Failed to remove API key: \(error)")
+        }
+    }
+    
+    private func forceDebugSave() {
+        let testKey = "sk-test123456789012345678901234567890"
+        print("DEBUG: Force saving test key: \(testKey)")
+        
+        do {
+            try KeychainService.shared.saveApiKey(testKey)
+            settings.hasApiKey = true
+            apiKeyTestResult = .success
+            print("DEBUG: Force save successful!")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showingApiKeyField = false
+                apiKey = ""
+                apiKeyTestResult = nil
+            }
+        } catch {
+            print("DEBUG: Force save failed: \(error)")
+            apiKeyTestResult = .failure("Force save failed: \(error.localizedDescription)")
         }
     }
     

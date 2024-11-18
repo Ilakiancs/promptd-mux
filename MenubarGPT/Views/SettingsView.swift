@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Settings and configuration view
+/// Modern settings interface with enhanced UX
 struct SettingsView: View {
     @EnvironmentObject private var openAIClient: OpenAIClient
     @Environment(\.settings) private var currentSettings
@@ -24,15 +24,16 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack(spacing: 12) {
-                Image(systemName: "gear")
+            // Modern header with gradient
+            HStack(spacing: 16) {
+                Image(systemName: "gearshape.fill")
                     .font(.title2)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue.gradient)
                 
                 Text("Settings")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
@@ -41,10 +42,17 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.return, modifiers: .command)
+                .controlSize(.regular)
             }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(Color(NSColor.windowBackgroundColor))
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color(NSColor.windowBackgroundColor), Color(NSColor.controlBackgroundColor).opacity(0.3)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             
             Divider()
             
@@ -119,7 +127,7 @@ struct SettingsView: View {
                         TextField("sk-...", text: $apiKey)
                             .textFieldStyle(.roundedBorder)
                             .font(.system(.body, design: .monospaced))
-                            .frame(minHeight: 32)
+                            .frame(minHeight: 36)
                             .autocorrectionDisabled()
                             .focused($isApiKeyFieldFocused)
                     }
@@ -203,6 +211,7 @@ struct SettingsView: View {
                             }
                         }
                         .buttonStyle(.borderedProminent)
+                        .controlSize(.regular)
                     }
                     
                     Spacer()
@@ -304,19 +313,15 @@ struct SettingsView: View {
         
         Task {
             do {
-                print("DEBUG: Testing API key with OpenAI...")
                 let isValid = try await openAIClient.testApiKey(trimmedKey)
-                print("DEBUG: API key test result: \(isValid)")
                 
                 await MainActor.run {
                     if isValid {
                         // Save the key
                         do {
-                            print("DEBUG: Saving API key to keychain...")
-                            try KeychainService.shared.saveApiKey(trimmedKey) // Use saveApiKey instead of saveValidatedApiKey to bypass format validation
+                            try KeychainService.shared.saveApiKey(trimmedKey)
                             settings.hasApiKey = true
                             apiKeyTestResult = .success
-                            print("DEBUG: API key saved successfully!")
                             
                             // Hide the field after a delay
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

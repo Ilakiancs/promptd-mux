@@ -15,6 +15,11 @@ minimal macOS menubar client for OpenAI chat completions
 ```bash
 git clone https://github.com/Ilakiancs/promptd-mux.git
 cd promptd-mux
+
+# build main target only (recommended)
+./build-main.sh
+
+# or build via xcode
 open MenubarGPT.xcodeproj
 # cmd+r to build
 ```

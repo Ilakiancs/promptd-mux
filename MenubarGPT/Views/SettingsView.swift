@@ -120,7 +120,6 @@ struct SettingsView: View {
                             .font(.system(.body, design: .monospaced))
                             .frame(minHeight: 32)
                             .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
                     }
                     
                     if let result = apiKeyTestResult {

@@ -44,7 +44,9 @@ final class OpenAIClient: ObservableObject {
         
         var shouldRetry: Bool {
             switch self {
-            case .rateLimited, .serverError(let code):
+            case .rateLimited:
+                return true
+            case .serverError(let code):
                 return code >= 500
             case .networkError:
                 return true

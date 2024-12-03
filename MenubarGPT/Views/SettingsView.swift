@@ -69,7 +69,7 @@ struct SettingsView: View {
             }
             .background(Color(NSColor.textBackgroundColor))
         }
-        .frame(minWidth: 500, minHeight: 450)
+        .frame(minWidth: 480, minHeight: 400)
         .onAppear {
             loadCurrentApiKey()
         }
@@ -109,35 +109,50 @@ struct SettingsView: View {
                 .foregroundColor(.secondary)
             
             if showingApiKeyField {
-                VStack(alignment: .leading, spacing: 8) {
-                    SecureField("Paste your OpenAI API key here", text: $apiKey)
-                        .textFieldStyle(.roundedBorder)
-                    
-                    if let result = apiKeyTestResult {
-                        switch result {
-                        case .success:
-                            Label("API key is valid!", systemImage: "checkmark.circle")
-                                .foregroundColor(.green)
-                                .font(.caption)
-                        case .failure(let error):
-                            Label(error, systemImage: "xmark.circle")
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        }
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("OpenAI API Key")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                        
+                        TextField("sk-...", text: $apiKey)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.system(.body, design: .monospaced))
+                            .frame(minHeight: 32)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
                     }
                     
-                    HStack {
+                    if let result = apiKeyTestResult {
+                        HStack(spacing: 8) {
+                            switch result {
+                            case .success:
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("API key is valid!")
+                                    .foregroundColor(.green)
+                            case .failure(let error):
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.red)
+                                Text(error)
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.gray.opacity(0.1))
+                        )
+                    }
+                    
+                    HStack(spacing: 12) {
                         Button("Test & Save") {
                             testAndSaveApiKey()
                         }
-                        .disabled(apiKey.isEmpty || isTestingApiKey)
-                        
-                        if isTestingApiKey {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        }
-                        
-                        Spacer()
+                        .buttonStyle(.borderedProminent)
+                        .disabled(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTestingApiKey)
                         
                         Button("Cancel") {
                             showingApiKeyField = false
@@ -145,8 +160,18 @@ struct SettingsView: View {
                             apiKeyTestResult = nil
                         }
                         .buttonStyle(.bordered)
+                        
+                        if isTestingApiKey {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                        
+                        Spacer()
                     }
                 }
+                .padding(16)
+                .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                .cornerRadius(8)
             } else {
                 HStack {
                     if KeychainService.shared.hasApiKey() {

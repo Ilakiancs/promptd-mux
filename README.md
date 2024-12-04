@@ -26,25 +26,6 @@ add openai api key in settings → test & save
 `cmd+enter` to send  
 click menubar icon for 420x520 window
 
-## architecture
-
-```
-Services/
-├── KeychainService.swift    # secure api storage
-└── OpenAIClient.swift       # streaming http client
-
-## made by "ilakiancs" 
-
-Views/
-├── ChatView.swift           # main interface + markdown
-└── SettingsView.swift       # key management
-
-Persistence/
-└── HistoryStore.swift       # json session storage
-
-Tests/
-├── MockOpenAIClient.swift   # dependency injection
-└── ChatTests.swift          # unit tests
 ```
 
 ## technical
@@ -53,6 +34,8 @@ Tests/
 - app sandbox with network.client entitlement
 - no logging in release builds
 - automatic retry with exponential backoff
+
+## made by "ilakiancs" 
 
 ## license
 

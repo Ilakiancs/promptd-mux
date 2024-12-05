@@ -33,6 +33,8 @@ Services/
 ├── KeychainService.swift    # secure api storage
 └── OpenAIClient.swift       # streaming http client
 
+## made by "ilakiancs" 
+
 Views/
 ├── ChatView.swift           # main interface + markdown
 └── SettingsView.swift       # key management

@@ -125,10 +125,11 @@ final class KeychainService {
         }
     }
     
-    /// Validate API key format
+    /// Validate API key format - relaxed validation
     static func isValidApiKeyFormat(_ apiKey: String) -> Bool {
-        // OpenAI API keys typically start with "sk-" and are 51 characters long
-        return apiKey.hasPrefix("sk-") && apiKey.count >= 20
+        // OpenAI API keys start with "sk-" and are at least 20 characters
+        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.hasPrefix("sk-") && trimmed.count >= 20
     }
 }
 

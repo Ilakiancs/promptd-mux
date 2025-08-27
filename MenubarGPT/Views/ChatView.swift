@@ -226,12 +226,8 @@ struct ChatView: View {
                             }
                         }
                     )
-                    .onKeyPress(.return) { keyPress in
-                        if keyPress.modifiers.contains(.command) {
-                            sendMessage()
-                            return .handled
-                        }
-                        return .ignored
+                    .onSubmit {
+                        sendMessage()
                     }
                     .disabled(isLoading)
                 

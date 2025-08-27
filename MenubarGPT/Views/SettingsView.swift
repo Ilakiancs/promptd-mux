@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var isTestingApiKey = false
     @State private var apiKeyTestResult: ApiKeyTestResult?
     @State private var showingApiKeyField = false
+    @FocusState private var isApiKeyFieldFocused: Bool
     
     enum ApiKeyTestResult {
         case success
@@ -120,6 +121,7 @@ struct SettingsView: View {
                             .font(.system(.body, design: .monospaced))
                             .frame(minHeight: 32)
                             .autocorrectionDisabled()
+                            .focused($isApiKeyFieldFocused)
                     }
                     
                     if let result = apiKeyTestResult {
@@ -153,6 +155,12 @@ struct SettingsView: View {
                         .buttonStyle(.borderedProminent)
                         .disabled(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTestingApiKey)
                         
+                        Button("Save Only") {
+                            saveApiKeyWithoutTest()
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTestingApiKey)
+                        
                         Button("Cancel") {
                             showingApiKeyField = false
                             apiKey = ""
@@ -176,6 +184,9 @@ struct SettingsView: View {
                     if KeychainService.shared.hasApiKey() {
                         Button("Update API Key") {
                             showingApiKeyField = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                isApiKeyFieldFocused = true
+                            }
                         }
                         .buttonStyle(.bordered)
                         
@@ -187,6 +198,9 @@ struct SettingsView: View {
                     } else {
                         Button("Add API Key") {
                             showingApiKeyField = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                isApiKeyFieldFocused = true
+                            }
                         }
                         .buttonStyle(.borderedProminent)
                     }
@@ -277,24 +291,32 @@ struct SettingsView: View {
     }
     
     private func testAndSaveApiKey() {
-        guard !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedKey.isEmpty else {
+            apiKeyTestResult = .failure("API key cannot be empty")
             return
         }
+        
+        print("DEBUG: Starting API key test for key: \(String(trimmedKey.prefix(10)))...")
         
         isTestingApiKey = true
         apiKeyTestResult = nil
         
         Task {
             do {
-                let isValid = try await openAIClient.testApiKey(apiKey)
+                print("DEBUG: Testing API key with OpenAI...")
+                let isValid = try await openAIClient.testApiKey(trimmedKey)
+                print("DEBUG: API key test result: \(isValid)")
                 
                 await MainActor.run {
                     if isValid {
                         // Save the key
                         do {
-                            try KeychainService.shared.saveValidatedApiKey(apiKey)
+                            print("DEBUG: Saving API key to keychain...")
+                            try KeychainService.shared.saveApiKey(trimmedKey) // Use saveApiKey instead of saveValidatedApiKey to bypass format validation
                             settings.hasApiKey = true
                             apiKeyTestResult = .success
+                            print("DEBUG: API key saved successfully!")
                             
                             // Hide the field after a delay
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -303,20 +325,50 @@ struct SettingsView: View {
                                 apiKeyTestResult = nil
                             }
                         } catch {
+                            print("DEBUG: Failed to save API key: \(error)")
                             apiKeyTestResult = .failure("Failed to save API key: \(error.localizedDescription)")
                         }
                     } else {
+                        print("DEBUG: API key validation failed")
                         apiKeyTestResult = .failure("Invalid API key")
                     }
                     
                     isTestingApiKey = false
                 }
             } catch {
+                print("DEBUG: API key test error: \(error)")
                 await MainActor.run {
                     apiKeyTestResult = .failure(error.localizedDescription)
                     isTestingApiKey = false
                 }
             }
+        }
+    }
+    
+    private func saveApiKeyWithoutTest() {
+        let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedKey.isEmpty else {
+            apiKeyTestResult = .failure("API key cannot be empty")
+            return
+        }
+        
+        print("DEBUG: Saving API key without testing...")
+        
+        do {
+            try KeychainService.shared.saveApiKey(trimmedKey)
+            settings.hasApiKey = true
+            apiKeyTestResult = .success
+            print("DEBUG: API key saved successfully without testing!")
+            
+            // Hide the field after a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showingApiKeyField = false
+                apiKey = ""
+                apiKeyTestResult = nil
+            }
+        } catch {
+            print("DEBUG: Failed to save API key: \(error)")
+            apiKeyTestResult = .failure("Failed to save API key: \(error.localizedDescription)")
         }
     }
     
@@ -330,6 +382,8 @@ struct SettingsView: View {
     }
     
     private func saveSettingsAndDismiss() {
+        // Refresh hasApiKey status before saving
+        settings.hasApiKey = KeychainService.shared.hasApiKey()
         settings.save()
         NotificationCenter.default.post(name: .settingsDidChange, object: nil)
         dismiss()

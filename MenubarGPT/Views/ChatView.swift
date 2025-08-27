@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Main chat interface view
+/// Modern chat interface with enhanced UI/UX
 struct ChatView: View {
     @EnvironmentObject private var historyStore: HistoryStore
     @EnvironmentObject private var openAIClient: OpenAIClient
@@ -11,6 +11,7 @@ struct ChatView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     @FocusState private var isTextFieldFocused: Bool
+    @State private var showingWelcome = true
     
     var body: some View {
         VStack(spacing: 0) {
@@ -42,47 +43,41 @@ struct ChatView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         if historyStore.messages.isEmpty {
-                            // Empty state
-                            VStack(spacing: 16) {
+                            // Enhanced empty state
+                            VStack(spacing: 24) {
                                 Spacer()
                                 
-                                Image(systemName: "bubble.left.and.bubble.right")
-                                    .font(.system(size: 48))
-                                    .foregroundColor(.secondary.opacity(0.6))
-                                
-                                VStack(spacing: 8) {
-                                    Text("Ready to Chat!")
-                                        .font(.title3)
-                                        .fontWeight(.medium)
+                                VStack(spacing: 16) {
+                                    Image(systemName: "sparkles")
+                                        .font(.system(size: 56, weight: .light))
+                                        .foregroundStyle(.blue.gradient)
                                     
-                                    Text("Ask me anything to get started")
-                                        .font(.body)
-                                        .foregroundColor(.secondary)
+                                    VStack(spacing: 8) {
+                                        Text("Welcome to promptd-mux")
+                                            .font(.title2)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.primary)
+                                        
+                                        Text("Your intelligent chat companion")
+                                            .font(.body)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
                                 
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Try asking:")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .fontWeight(.medium)
-                                    
-                                    Text("• \"Explain quantum computing\"")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    Text("• \"Write a Swift function\"")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    Text("• \"Help me plan my day\"")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
+                                VStack(spacing: 12) {
+                                    HStack(spacing: 12) {
+                                        SuggestionChip(text: "Explain quantum physics", action: { setSuggestion("Explain quantum physics") })
+                                        SuggestionChip(text: "Write a poem", action: { setSuggestion("Write a poem") })
+                                    }
+                                    HStack(spacing: 12) {
+                                        SuggestionChip(text: "Plan my day", action: { setSuggestion("Plan my day") })
+                                        SuggestionChip(text: "Code review", action: { setSuggestion("Code review") })
+                                    }
                                 }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 12)
-                                .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
-                                .cornerRadius(8)
                                 
                                 Spacer()
                             }
+                            .padding(.horizontal, 20)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding()
                         } else {
@@ -202,26 +197,27 @@ struct ChatView: View {
     private var messageComposer: some View {
         VStack(spacing: 8) {
             HStack(alignment: .bottom, spacing: 12) {
-                // Message input field
+                // Enhanced message input field
                 TextEditor(text: $messageText)
                     .font(.body)
                     .focused($isTextFieldFocused)
-                    .frame(minHeight: 36, maxHeight: 120)
-                    .padding(8)
+                    .frame(minHeight: 40, maxHeight: 120)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                     .background(Color(NSColor.controlBackgroundColor))
-                    .cornerRadius(8)
+                    .cornerRadius(20)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(isTextFieldFocused ? Color.blue.opacity(0.6) : Color.gray.opacity(0.2), lineWidth: 2)
                     )
                     .overlay(
                         Group {
                             if messageText.isEmpty {
-                                Text("Ask me anything...")
+                                Text("Type your message here...")
                                     .foregroundColor(.secondary)
                                     .allowsHitTesting(false)
-                                    .padding(.leading, 12)
-                                    .padding(.top, 8)
+                                    .padding(.leading, 20)
+                                    .padding(.top, 12)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                             }
                         }
@@ -230,24 +226,30 @@ struct ChatView: View {
                         sendMessage()
                     }
                     .disabled(isLoading)
+                    .animation(.easeInOut(duration: 0.2), value: isTextFieldFocused)
                 
-                // Send button
+                // Enhanced send button
                 Button(action: sendMessage) {
                     Group {
                         if isLoading {
                             ProgressView()
                                 .scaleEffect(0.8)
+                                .frame(width: 20, height: 20)
                         } else {
-                            Image(systemName: "arrow.up.circle.fill")
-                                .font(.title2)
+                            Image(systemName: "arrow.up")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white)
                         }
                     }
-                    .foregroundColor(canSendMessage ? .blue : .gray)
-                    .frame(width: 24, height: 24)
+                    .frame(width: 36, height: 36)
+                    .background(canSendMessage ? Color.blue : Color.gray.opacity(0.3))
+                    .cornerRadius(18)
                 }
                 .buttonStyle(.plain)
                 .disabled(!canSendMessage)
                 .help(isLoading ? "Generating response..." : "Send message")
+                .scaleEffect(canSendMessage && !isLoading ? 1.0 : 0.9)
+                .animation(.spring(response: 0.3), value: canSendMessage)
             }
             
             // Helper text and status
@@ -379,6 +381,11 @@ struct ChatView: View {
     
     private func clearCurrentSession() {
         historyStore.clearMessages()
+        isTextFieldFocused = true
+    }
+    
+    private func setSuggestion(_ text: String) {
+        messageText = text
         isTextFieldFocused = true
     }
 }
@@ -685,6 +692,29 @@ struct CodeBlockView: View {
         showingCopySuccess = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             showingCopySuccess = false
+        }
+    }
+}
+
+// MARK: - Suggestion Chip Component
+struct SuggestionChip: View {
+    let text: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(text)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.blue)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(12)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering in
+            // Add subtle hover effect
         }
     }
 }

@@ -57,7 +57,7 @@ enum OpenAIModel: String, Codable, CaseIterable, Identifiable {
 // MARK: - Settings Storage
 extension Settings {
     private static let userDefaults = UserDefaults.standard
-    private static let settingsKey = "MenubarGPT.Settings"
+    private static let settingsKey = "promptd-mux.Settings"
     
     /// Load settings from UserDefaults
     static func load() -> Settings {

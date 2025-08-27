@@ -8,7 +8,7 @@ struct MenubarGPTApp: App {
     @State private var settings = Settings.load()
     
     var body: some Scene {
-        MenuBarExtra("MenubarGPT", systemImage: "message.badge") {
+        MenuBarExtra("promptd-mux", systemImage: "sparkles") {
             MenubarGPTView()
                 .environmentObject(historyStore)
                 .environmentObject(openAIClient)
@@ -81,11 +81,11 @@ struct MenubarGPTView: View {
         HStack(spacing: 12) {
             // App icon and title
             HStack(spacing: 8) {
-                Image(systemName: "message.badge.filled.fill")
+                Image(systemName: "sparkles")
                     .font(.title3)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue.gradient)
                 
-                Text("MenubarGPT")
+                Text("promptd-mux")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
@@ -120,7 +120,7 @@ struct MenubarGPTView: View {
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(.plain)
-                .help("Quit MenubarGPT")
+                .help("Quit promptd-mux")
             }
         }
         .padding(.horizontal, 16)

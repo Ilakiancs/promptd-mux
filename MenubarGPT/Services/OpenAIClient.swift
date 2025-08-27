@@ -93,7 +93,7 @@ final class OpenAIClient: ObservableObject {
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("MenubarGPT/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("promptd-mux/1.0", forHTTPHeaderField: "User-Agent")
         
         do {
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -173,7 +173,7 @@ final class OpenAIClient: ObservableObject {
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("MenubarGPT/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("promptd-mux/1.0", forHTTPHeaderField: "User-Agent")
         
         do {
             request.httpBody = try JSONEncoder().encode(requestBody)
@@ -240,38 +240,39 @@ final class OpenAIClient: ObservableObject {
         }
     }
     
-    /// Test the API key by making a simple request
+    /// Test the API key by making a lightweight request
     func testApiKey(_ apiKey: String) async throws -> Bool {
-        // Temporarily use the provided key for testing
-        let originalKey = try keychain.getApiKey()
-        try keychain.saveApiKey(apiKey)
-        
-        defer {
-            // Restore original key
-            do {
-                if let original = originalKey {
-                    try keychain.saveApiKey(original)
-                } else {
-                    try keychain.deleteApiKey()
-                }
-            } catch {
-                print("Failed to restore original API key: \(error)")
-            }
+        guard let url = URL(string: "\(baseURL)/models") else {
+            throw APIError.invalidURL
         }
         
-        let testMessage = Message(
-            role: .user,
-            content: "Hello",
-            sessionId: "test"
-        )
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("promptd-mux/1.0", forHTTPHeaderField: "User-Agent")
+        request.timeoutInterval = 10.0
         
         do {
-            _ = try await sendChatCompletion(messages: [testMessage], model: .gpt4oMini)
-            return true
-        } catch APIError.unauthorized {
+            let (_, response) = try await session.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                switch httpResponse.statusCode {
+                case 200...299:
+                    return true
+                case 401:
+                    return false
+                default:
+                    throw APIError.serverError(httpResponse.statusCode)
+                }
+            }
+            
             return false
         } catch {
-            throw error
+            if error is APIError {
+                throw error
+            }
+            throw APIError.networkError(error)
         }
     }
 }

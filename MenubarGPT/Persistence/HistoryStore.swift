@@ -13,10 +13,10 @@ final class HistoryStore: ObservableObject {
     private let decoder = JSONDecoder()
     
     /// Maximum number of messages to keep per session
-    private let maxMessagesPerSession = 50
+    private let maxMessagesPerSession = 100
     
     /// Maximum number of sessions to keep
-    private let maxSessions = 50
+    private let maxSessions = 20
     
     static let shared = HistoryStore()
     

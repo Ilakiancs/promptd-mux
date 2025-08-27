@@ -25,7 +25,6 @@ struct MenubarGPTApp: App {
             SettingsView()
                 .environmentObject(openAIClient)
                 .environment(\.settings, settings)
-                .frame(width: 500, height: 400)
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)
@@ -131,7 +130,6 @@ struct MenubarGPTView: View {
             SettingsView()
                 .environmentObject(openAIClient)
                 .environment(\.settings, settings)
-                .frame(width: 500, height: 400)
         }
     }
     

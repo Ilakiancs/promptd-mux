@@ -130,6 +130,9 @@ struct SettingsView: View {
                             .frame(minHeight: 36)
                             .autocorrectionDisabled()
                             .focused($isApiKeyFieldFocused)
+                            .onChange(of: apiKey) { newValue in
+                                print("DEBUG: TextField value changed to: '\(newValue)' (length: \(newValue.count))")
+                            }
                     }
                     
                     if let result = apiKeyTestResult {
@@ -163,6 +166,9 @@ struct SettingsView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTestingApiKey)
+                        .onAppear {
+                            print("DEBUG: Test & Save button disabled state: \(apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isTestingApiKey)")
+                        }
                         
                         Button("Save Only") {
                             print("DEBUG: Save Only button pressed")
@@ -212,14 +218,23 @@ struct SettingsView: View {
                         .buttonStyle(.bordered)
                         .foregroundColor(.red)
                     } else {
-                        Button("Add API Key") {
-                            showingApiKeyField = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                isApiKeyFieldFocused = true
+                        VStack(spacing: 8) {
+                            Button("Add API Key") {
+                                print("DEBUG: Add API Key button pressed")
+                                showingApiKeyField = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isApiKeyFieldFocused = true
+                                }
                             }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.regular)
+                            
+                            Button("Quick Test") {
+                                quickSaveTest()
+                            }
+                            .buttonStyle(.bordered)
+                            .foregroundColor(.orange)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.regular)
                     }
                     
                     Spacer()
@@ -391,6 +406,26 @@ struct SettingsView: View {
             settings.hasApiKey = false
         } catch {
             print("Failed to remove API key: \(error)")
+        }
+    }
+    
+    private func quickSaveTest() {
+        print("DEBUG: Quick Save Test started")
+        let testKey = "sk-quicktest123456789012345678901234567890"
+        
+        do {
+            try KeychainService.shared.saveApiKey(testKey)
+            settings.hasApiKey = true
+            print("DEBUG: Quick save successful! Key saved to keychain")
+            
+            // Try to retrieve it immediately
+            if let retrievedKey = try? KeychainService.shared.getApiKey() {
+                print("DEBUG: Retrieved key: \(String(retrievedKey.prefix(15)))...")
+                print("DEBUG: Keys match: \(retrievedKey == testKey)")
+            }
+            
+        } catch {
+            print("DEBUG: Quick save failed: \(error)")
         }
     }
     

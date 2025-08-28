@@ -40,8 +40,8 @@ click menubar icon for 420x520 window
 - no logging in release builds
 - automatic retry with exponential backoff
 
-## made by "ilakiancs" 
-
 ## license
 
 mit
+
+## made by "ilakiancs" 

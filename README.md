@@ -35,32 +35,10 @@ add openai api key in settings → test & save
 ## usage
 
 `cmd+enter` to send  
-click menubar icon for 420x520 window
+click menubar icon for the icon window
 
 ```
-
-## technical
-
-- swiftui + combine reactive patterns
-- app sandbox with network.client entitlement
-- no logging in release builds
-- automatic retry with exponential backoff
-
-## made by "ilakiancs" 
-
-## license
-
-mit
-
-<!-- Updated: update usage examples -->
-
-<!-- Updated: add keyboard shortcuts guide -->
-
-<!-- Updated: add installation video link -->
-
-<!-- Updated: update for version release -->
-
-<!-- Copy-paste in your Readme.md file -->
+```
 
 <a href="https://next.ossinsight.io/widgets/official/analyze-repo-loc-per-month?repo_id=41986369" target="_blank" style="display: block" align="center">
   <picture>
@@ -70,3 +48,7 @@ mit
 </a>
 
 <!-- Made with [OSS Insight](https://ossinsight.io/) -->
+
+```
+
+

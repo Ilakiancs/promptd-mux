@@ -37,8 +37,7 @@ add openai api key in settings → test & save
 `cmd+enter` to send  
 click menubar icon for the icon window
 
-```
-```
+
 
 <a href="https://next.ossinsight.io/widgets/official/analyze-repo-loc-per-month?repo_id=41986369" target="_blank" style="display: block" align="center">
   <picture>
@@ -48,7 +47,5 @@ click menubar icon for the icon window
 </a>
 
 <!-- Made with [OSS Insight](https://ossinsight.io/) -->
-
-```
 
 
